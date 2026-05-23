@@ -4,49 +4,87 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private LayerMask groundLayer;
+    public Rigidbody2D rb;
 
-    public float speed = 8f;
-    public float jumpPower = 16f;
+    [Header("Movement")]
+    public float moveSpeed = 10f;
+    float horizontalMovement;
 
-    private Vector2 _moveDirection;
+    [Header("Jumping")]
+    public float jumpPower = 15f;
+    public int maxJumps = 2;
+    int _jumpsRemaining;
 
-    public InputActionReference move;
-    public InputActionReference jump;
+    // W pozniejszym etapie dodamy bufor skoku, zeby nie trzeba bylo skoczyc w idealnym momencie
+    //[Header("Jump Buffer")]
+    //public float jumpBufferTime = 0.15f;
+
+    //float _jumpBufferCounter;
+
+    [Header("Ground Check")]
+    public Transform groundCheckPos;
+    public Vector2 groundCheckSize = new Vector2 (0.65f, 0.05f);
+    public LayerMask groundLayer;
+
+    [Header("Gravity")]
+    public float baseGravity = 5;
+    public float maxFallSpeed = 18f;
+    public float fallSpeedMultiplier = 2f;
+
+    void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(horizontalMovement * moveSpeed, rb.linearVelocityY);
+
+        Gravity();
+    }
 
     void Update()
     {
-        _moveDirection = move.action.ReadValue<Vector2>();
+        GroundCheck();
     }
 
-    private bool isGrounded()
+    public void Gravity()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-    }
-
-    private void FixedUpdate()
-    {
-        rb.linearVelocity = new Vector2(_moveDirection.x * speed, rb.linearVelocity.y);
-    }
-
-    private void OnEnable()
-    {
-        jump.action.started += Jump;
-    }
-
-    private void OnDisable()
-    {
-        jump.action.started -= Jump;
-
-    }
-
-    private void Jump(InputAction.CallbackContext context)
-    {
-        if (isGrounded())
+        if (rb.linearVelocity.y < 0)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
+            rb.gravityScale = baseGravity * fallSpeedMultiplier;
+            rb.linearVelocity = new Vector2(rb.linearVelocityX, Mathf.Max(rb.linearVelocityY, -maxFallSpeed));
         }
+        else
+        {
+            rb.gravityScale = baseGravity;
+        }
+    }
+
+
+    public void Move(InputAction.CallbackContext context)
+    {
+        horizontalMovement = context.ReadValue<Vector2>().x;
+    }
+
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (context.performed && _jumpsRemaining > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpPower);
+            _jumpsRemaining--;
+        }
+    }
+
+    private void GroundCheck()
+    {
+        bool _grounded = Physics2D.OverlapBox(groundCheckPos.position, groundCheckSize, 0, groundLayer);
+
+        if (_grounded && rb.linearVelocityY <= 0)
+        {
+            _jumpsRemaining = maxJumps;
+        }
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
     }
 }

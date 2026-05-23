@@ -3,19 +3,25 @@ using UnityEngine.EventSystems;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] Rigidbody2D rb;
-    public float speed = 4f;
-    private bool _isMovingRight = true;
+    public Rigidbody2D rb;
+
+    [Header("Patrolling")]
+    public float patrolSpeed = 3f;
+    bool _isMovingRight = true;
+
+    //[Header("Chasing")]
+    //public float chaseSpeed = 5f;
+    //bool _isChasing = false;
 
 
     void Update()
     {
-        if (rb.position.x >= 3)
+        if (rb.position.x >= 20)
         {
             _isMovingRight = false;
         }
 
-        if (rb.position.x <= -1)
+        if (rb.position.x <= 15)
         {
             _isMovingRight = true;
         }
@@ -25,11 +31,11 @@ public class EnemyMovement : MonoBehaviour
     {
         if (_isMovingRight)
         {
-            rb.linearVelocity = new Vector2(speed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(patrolSpeed, rb.linearVelocity.y);
         }
         else
         {
-            rb.linearVelocity = new Vector2(-speed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(-patrolSpeed, rb.linearVelocity.y);
         }
     }
 }
