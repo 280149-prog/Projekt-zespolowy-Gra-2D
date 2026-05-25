@@ -36,7 +36,7 @@ public class BaseLayoutGenerator : MonoBehaviour
     {
         Debug.Log("Generuję Base Layout.");
 
-        columns = GenerateBaseLayout();
+        columns = GenerateBaseLayoutData();
 
         if (heightLayoutGenerator != null)
         {
@@ -68,7 +68,19 @@ public class BaseLayoutGenerator : MonoBehaviour
         PrintBaseLayout(columns);
     }
 
-    private LevelColumnData[] GenerateBaseLayout()
+    public void ApplySettings(ChunkGenerationSettings settings)
+    {
+        if (settings == null)
+        {
+            return;
+        }
+
+        minGapLength = settings.minGapLength;
+        maxGapLength = settings.maxGapLength;
+        minGroundRunAfterGap = settings.minGroundRunAfterGap;
+    }
+
+    public LevelColumnData[] GenerateBaseLayoutData()
     {
         LevelColumnData[] result = new LevelColumnData[width];
 
@@ -142,6 +154,20 @@ public class BaseLayoutGenerator : MonoBehaviour
             previousType = column.baseType;
             result[x] = column;
         }
+
+        return result;
+    }
+
+    public LevelColumnData[] GenerateBaseLayoutData(int customWidth, ChunkGenerationSettings settings)
+    {
+        int previousWidth = width;
+
+        ApplySettings(settings);
+
+        width = customWidth;
+        LevelColumnData[] result = GenerateBaseLayoutData();
+
+        width = previousWidth;
 
         return result;
     }

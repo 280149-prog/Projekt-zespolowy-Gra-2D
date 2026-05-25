@@ -362,6 +362,58 @@ MonoBehaviour:
     topRightEdgeTiles:
     - {fileID: 11400000, guid: dc187f735ebf1f942ad05c89509c517f, type: 2}
     topSingleTiles: []
+  - biomeName: Desert
+    groundTiles:
+    - {fileID: 11400000, guid: 03c50c816731a7346a4e054a564cb598, type: 2}
+    - {fileID: 11400000, guid: 101fa85cf917d2942b4a549e50913c17, type: 2}
+    - {fileID: 11400000, guid: 49d378bf6f9f6d74ca5dc092f7cb0ba5, type: 2}
+    - {fileID: 11400000, guid: 2e71186690e559244813db4c61ce419f, type: 2}
+    - {fileID: 11400000, guid: 3623ecd482b1fe4489a8ca1ad815b491, type: 2}
+    - {fileID: 11400000, guid: 034405b09e23c894cabc5d2b8ef0407e, type: 2}
+    - {fileID: 11400000, guid: 8c20f8b086337e24c9f8307bf5f53dd9, type: 2}
+    - {fileID: 11400000, guid: ce465d8c2fdfef741a732f83c0209ef6, type: 2}
+    - {fileID: 11400000, guid: c79c805261172c1478b7593b57d06b60, type: 2}
+    - {fileID: 11400000, guid: 945911a40a9232047857021b24f4991d, type: 2}
+    - {fileID: 11400000, guid: e7fc5f8bfd0a1574fb1fa8554096b9e3, type: 2}
+    - {fileID: 11400000, guid: 99e2a50ac230f4c45bb02738acebca3f, type: 2}
+    - {fileID: 11400000, guid: aaeecfba40911c447a4d69adcb4748a5, type: 2}
+    - {fileID: 11400000, guid: 089e50645968c8742bd08cbcb1e7c106, type: 2}
+    - {fileID: 11400000, guid: d6772ca94291d134aa53b6c8cebb613e, type: 2}
+    topTiles:
+    - {fileID: 11400000, guid: 7ab6d2daf05b4e44c85739cfbe290bea, type: 2}
+    - {fileID: 11400000, guid: 113c8a6aecb8b354698dca4f04a9a46e, type: 2}
+    - {fileID: 11400000, guid: 392355d22d27d874d924f1110c085a88, type: 2}
+    topLeftEdgeTiles:
+    - {fileID: 11400000, guid: a8b25d3a1392a5746918073c2f38d27d, type: 2}
+    topRightEdgeTiles:
+    - {fileID: 11400000, guid: e7ad4a1fc826ee74a87fb635d30de792, type: 2}
+    topSingleTiles: []
+  - biomeName: Winter
+    groundTiles:
+    - {fileID: 11400000, guid: f4009970dccb73043aca277ba05b8034, type: 2}
+    - {fileID: 11400000, guid: fda9047820a98c340b9c0829bf42eddd, type: 2}
+    - {fileID: 11400000, guid: c736278931a85174590ae8801f689626, type: 2}
+    - {fileID: 11400000, guid: 4ecf62ee894499d42a3fa240245f60cd, type: 2}
+    - {fileID: 11400000, guid: 40620270d4d9e4f4192056b2bbffd9cc, type: 2}
+    - {fileID: 11400000, guid: 115dbbebe52138a4b9d00bf06a0b6a48, type: 2}
+    - {fileID: 11400000, guid: c95da0e64dbc92d4e9bd8eaf4ec09b96, type: 2}
+    - {fileID: 11400000, guid: 08b3920fffaaf944ba0d05fcd94cb13d, type: 2}
+    - {fileID: 11400000, guid: efe501e3c4cbb3a428975d4581dbf74d, type: 2}
+    - {fileID: 11400000, guid: 1d0204dd47af3264fac3392d6bfca558, type: 2}
+    - {fileID: 11400000, guid: 5428500d6d1736c4ab879bd360b46271, type: 2}
+    - {fileID: 11400000, guid: 744d0920c75611b46842dca3b977dbbf, type: 2}
+    - {fileID: 11400000, guid: d0bc2a4ee15d1a24d8156e678237222b, type: 2}
+    - {fileID: 11400000, guid: f395627fe3a1738429420a0c681acdb6, type: 2}
+    - {fileID: 11400000, guid: 63e6af768231bfe42b5a1e91f931f51d, type: 2}
+    topTiles:
+    - {fileID: 11400000, guid: 136775b69bedd7b49a1c9df8fd6ef449, type: 2}
+    - {fileID: 11400000, guid: b231c7cdf94597945a20add1abe59fc4, type: 2}
+    - {fileID: 11400000, guid: 7cf09b076a3eefe4b868a8747538be23, type: 2}
+    topLeftEdgeTiles:
+    - {fileID: 11400000, guid: 7c78f02e5a614674abfbdb504d0c38e2, type: 2}
+    topRightEdgeTiles:
+    - {fileID: 11400000, guid: a0c6768794abe074cb7efc760d8cf739, type: 2}
+    topSingleTiles: []
   biomeLengthInChunks: 2
   baseLayoutGenerator: {fileID: 504958881}
   heightLayoutGenerator: {fileID: 504958880}

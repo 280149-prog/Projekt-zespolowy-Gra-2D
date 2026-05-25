@@ -174,4 +174,31 @@ public class PlatformLayoutGenerator : MonoBehaviour
                type == BaseColumnType.WaterGap ||
                type == BaseColumnType.LavaGap;
     }
+
+    public void ApplySettings(ChunkGenerationSettings settings)
+    {
+        if (settings == null)
+        {
+            return;
+        }
+
+        minGapLengthForPlatform = settings.minGapLengthForPlatform;
+
+        randomPlatformChance = settings.randomPlatformChance;
+        maxRandomPlatforms = settings.maxRandomPlatforms;
+
+        minPlatformLength = settings.minPlatformLength;
+        maxPlatformLength = settings.maxPlatformLength;
+
+        minHeightAboveBase = settings.minHeightAboveBase;
+        maxHeightAboveBase = settings.maxHeightAboveBase;
+
+        minDistanceBetweenPlatforms = settings.minDistanceBetweenPlatforms;
+    }
+
+    public void ApplyPlatforms(LevelColumnData[] columns, ChunkGenerationSettings settings)
+    {
+        ApplySettings(settings);
+        ApplyPlatforms(columns);
+    }
 }

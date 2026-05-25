@@ -3,43 +3,44 @@ using UnityEngine.Tilemaps;
 
 public class TilemapDrawer : MonoBehaviour
 {
+    private enum NeighbourType
+    {
+        Air,
+        Ground,
+        Liquid
+    }
+
     [Header("Tilemaps")]
     [SerializeField] private Tilemap mainTilemap;
 
-    [Header("Ground tiles")]
-    [SerializeField] private TileBase[] groundTiles;
+    [Header("Biome")]
+    [SerializeField] private BiomeTileSet currentBiome;
 
-    [Header("Top tiles")]
-    [SerializeField] private TileBase[] topTiles;
-    [SerializeField] private TileBase[] topLeftEdgeTiles;
-    [SerializeField] private TileBase[] topRightEdgeTiles;
-    [SerializeField] private TileBase[] topSingleTiles;
-
-    [Header("Water top tiles")]
+    [Header("Shared water top tiles")]
     [SerializeField] private TileBase[] waterTopLeftTiles;
     [SerializeField] private TileBase[] waterTopMiddleTiles;
     [SerializeField] private TileBase[] waterTopRightTiles;
     [SerializeField] private TileBase[] waterTopSingleTiles;
 
-    [Header("Water middle tiles")]
+    [Header("Shared water middle tiles")]
     [SerializeField] private TileBase[] waterMiddleTiles;
 
-    [Header("Water bottom tiles")]
+    [Header("Shared water bottom tiles")]
     [SerializeField] private TileBase[] waterBottomLeftTiles;
     [SerializeField] private TileBase[] waterBottomMiddleTiles;
     [SerializeField] private TileBase[] waterBottomRightTiles;
     [SerializeField] private TileBase[] waterBottomSingleTiles;
 
-    [Header("Lava top tiles")]
+    [Header("Shared lava top tiles")]
     [SerializeField] private TileBase[] lavaTopLeftTiles;
     [SerializeField] private TileBase[] lavaTopMiddleTiles;
     [SerializeField] private TileBase[] lavaTopRightTiles;
     [SerializeField] private TileBase[] lavaTopSingleTiles;
 
-    [Header("Lava middle tiles")]
+    [Header("Shared lava middle tiles")]
     [SerializeField] private TileBase[] lavaMiddleTiles;
 
-    [Header("Lava bottom tiles")]
+    [Header("Shared lava bottom tiles")]
     [SerializeField] private TileBase[] lavaBottomLeftTiles;
     [SerializeField] private TileBase[] lavaBottomMiddleTiles;
     [SerializeField] private TileBase[] lavaBottomRightTiles;
@@ -54,18 +55,12 @@ public class TilemapDrawer : MonoBehaviour
     [SerializeField] private int leftWallX = -16;
     [SerializeField] private int leftWallHeight = 10;
 
-    private enum NeighbourType
-    {
-        Air,
-        Ground,
-        Liquid
-    }
-
+    // Stara metoda - dalej działa dla jednego chunka.
+    // Czyści mapę, rysuje spawn i rysuje chunk od x = 0.
     public void DrawColumns(LevelColumnData[] columns)
     {
-        if (columns == null)
+        if (!CanDraw(columns, currentBiome))
         {
-            Debug.LogError("TilemapDrawer dostał null columns.");
             return;
         }
 
@@ -73,23 +68,96 @@ public class TilemapDrawer : MonoBehaviour
 
         if (drawSpawnArea)
         {
-            DrawSpawnArea(columns);
+            DrawSpawnArea(currentBiome);
+        }
+
+        DrawColumns(columns, 0, currentBiome);
+
+        Debug.Log("TilemapDrawer: narysowano pojedynczy chunk.");
+    }
+
+    // Nowa metoda pod ChunkManager.
+    // NIE czyści tilemapy, tylko dorysowuje chunk od podanego xOffset.
+    public void DrawColumns(LevelColumnData[] columns, int xOffset, BiomeTileSet biome)
+    {
+        if (!CanDraw(columns, biome))
+        {
+            return;
         }
 
         for (int x = 0; x < columns.Length; x++)
         {
-            DrawBaseColumn(columns, x);
-            DrawFeature(columns, x);
+            int worldX = x + xOffset;
+
+            DrawBaseColumn(columns, x, worldX, biome);
+            DrawFeature(columns, x, worldX, biome);
         }
 
-        Debug.Log("TilemapDrawer: narysowano chunk.");
+        Debug.Log("TilemapDrawer: narysowano chunk z offsetem x = " + xOffset);
     }
 
-    private void DrawSpawnArea(LevelColumnData[] columns)
+    // Przyda się później dla ChunkManagera.
+    public void ClearTilemap()
+    {
+        if (mainTilemap != null)
+        {
+            mainTilemap.ClearAllTiles();
+        }
+    }
+
+    // Przyda się później dla ChunkManagera.
+    public void DrawSpawn(BiomeTileSet biome)
+    {
+        if (mainTilemap == null)
+        {
+            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            return;
+        }
+
+        if (biome == null)
+        {
+            Debug.LogError("TilemapDrawer: nie podano biome dla spawna.");
+            return;
+        }
+
+        DrawSpawnArea(biome);
+    }
+
+    private bool CanDraw(LevelColumnData[] columns, BiomeTileSet biome)
+    {
+        if (columns == null)
+        {
+            Debug.LogError("TilemapDrawer dostał null columns.");
+            return false;
+        }
+
+        if (mainTilemap == null)
+        {
+            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            return false;
+        }
+
+        if (biome == null)
+        {
+            Debug.LogError("TilemapDrawer: nie ustawiono biome.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void DrawSpawnArea(BiomeTileSet biome)
     {
         for (int x = spawnStartX; x <= spawnEndX; x++)
         {
-            DrawGroundColumnWithOffset(x, spawnGroundHeight, spawnYOffset, false, false);
+            DrawGroundColumnWithOffset(
+                x,
+                spawnGroundHeight,
+                spawnYOffset,
+                true,
+                true,
+                biome
+            );
         }
 
         for (int y = 0; y <= leftWallHeight; y++)
@@ -99,11 +167,63 @@ public class TilemapDrawer : MonoBehaviour
 
             if (y == leftWallHeight)
             {
-                mainTilemap.SetTile(position, GetRandomTile(topTiles));
+                mainTilemap.SetTile(position, GetRandomTile(biome.topTiles));
             }
             else
             {
-                mainTilemap.SetTile(position, GetRandomTile(groundTiles));
+                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
+            }
+        }
+    }
+
+    private void DrawBaseColumn(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
+    {
+        LevelColumnData column = columns[localX];
+
+        if (column.baseType == BaseColumnType.Ground)
+        {
+            NeighbourType leftNeighbour = GetNeighbourTypeAtHeight(columns, localX - 1, column.groundHeight);
+            NeighbourType rightNeighbour = GetNeighbourTypeAtHeight(columns, localX + 1, column.groundHeight);
+
+            bool hasSolidLeft = CountsAsSolidForGroundTop(leftNeighbour, rightNeighbour);
+            bool hasSolidRight = CountsAsSolidForGroundTop(rightNeighbour, leftNeighbour);
+
+            DrawGroundColumn(worldX, column.groundHeight, hasSolidLeft, hasSolidRight, biome);
+        }
+        else if (column.baseType == BaseColumnType.WaterGap)
+        {
+            DrawWaterColumn(columns, localX, worldX, biome);
+        }
+        else if (column.baseType == BaseColumnType.LavaGap)
+        {
+            DrawLavaColumn(columns, localX, worldX, biome);
+        }
+        else if (column.baseType == BaseColumnType.Gap)
+        {
+            // Zwykła przepaść - nic nie rysujemy.
+        }
+    }
+
+    private void DrawGroundColumn(
+        int worldX,
+        int groundHeight,
+        bool hasSolidLeft,
+        bool hasSolidRight,
+        BiomeTileSet biome
+    )
+    {
+        for (int y = 0; y <= groundHeight; y++)
+        {
+            Vector3Int position = new Vector3Int(worldX, y, 0);
+
+            if (y == groundHeight)
+            {
+                TileBase topTile = ChooseTopTile(hasSolidLeft, hasSolidRight, biome);
+                mainTilemap.SetTile(position, topTile);
+            }
+            else
+            {
+                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
             }
         }
     }
@@ -112,8 +232,9 @@ public class TilemapDrawer : MonoBehaviour
         int x,
         int groundHeight,
         int yOffset,
-        bool hasGroundLeft,
-        bool hasGroundRight
+        bool hasSolidLeft,
+        bool hasSolidRight,
+        BiomeTileSet biome
     )
     {
         for (int y = 0; y <= groundHeight; y++)
@@ -123,284 +244,37 @@ public class TilemapDrawer : MonoBehaviour
 
             if (y == groundHeight)
             {
-                TileBase topTile = ChooseTopTile(hasGroundLeft, hasGroundRight);
+                TileBase topTile = ChooseTopTile(hasSolidLeft, hasSolidRight, biome);
                 mainTilemap.SetTile(position, topTile);
             }
             else
             {
-                mainTilemap.SetTile(position, GetRandomTile(groundTiles));
+                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
             }
         }
     }
 
-    private void DrawBaseColumn(LevelColumnData[] columns, int x)
-    {
-        LevelColumnData column = columns[x];
-
-        if (column.baseType == BaseColumnType.Ground)
-        {
-            NeighbourType leftNeighbour = GetNeighbourTypeAtHeight(columns, x - 1, column.groundHeight);
-            NeighbourType rightNeighbour = GetNeighbourTypeAtHeight(columns, x + 1, column.groundHeight);
-
-            bool hasSolidLeft = CountsAsSolidForGroundTop(leftNeighbour, rightNeighbour);
-            bool hasSolidRight = CountsAsSolidForGroundTop(rightNeighbour, leftNeighbour);
-
-            DrawGroundColumn(x, column.groundHeight, hasSolidLeft, hasSolidRight);
-        }
-        else if (column.baseType == BaseColumnType.WaterGap)
-        {
-            DrawWaterColumn(columns, x);
-        }
-        else if (column.baseType == BaseColumnType.LavaGap)
-        {
-            DrawLavaColumn(columns, x);
-        }
-        else if (column.baseType == BaseColumnType.Gap)
-        {
-            // Zwykła przepaść - nic nie rysujemy.
-        }
-    }
-    private void DrawWaterColumn(LevelColumnData[] columns, int x)
-    {
-        DrawLiquidColumn(
-            columns,
-            x,
-            BaseColumnType.WaterGap,
-            waterTopLeftTiles,
-            waterTopMiddleTiles,
-            waterTopRightTiles,
-            waterTopSingleTiles,
-            waterMiddleTiles,
-            waterBottomLeftTiles,
-            waterBottomMiddleTiles,
-            waterBottomRightTiles,
-            waterBottomSingleTiles
-        );
-    }
-
-    private void DrawLavaColumn(LevelColumnData[] columns, int x)
-    {
-        DrawLiquidColumn(
-            columns,
-            x,
-            BaseColumnType.LavaGap,
-            lavaTopLeftTiles,
-            lavaTopMiddleTiles,
-            lavaTopRightTiles,
-            lavaTopSingleTiles,
-            lavaMiddleTiles,
-            lavaBottomLeftTiles,
-            lavaBottomMiddleTiles,
-            lavaBottomRightTiles,
-            lavaBottomSingleTiles
-        );
-    }
-
-    private void DrawGroundColumn(int x, int groundHeight, bool hasGroundLeft, bool hasGroundRight)
-    {
-        for (int y = 0; y <= groundHeight; y++)
-        {
-            Vector3Int position = new Vector3Int(x, y, 0);
-
-            if (y == groundHeight)
-            {
-                TileBase topTile = ChooseTopTile(hasGroundLeft, hasGroundRight);
-                mainTilemap.SetTile(position, topTile);
-            }
-            else
-            {
-                mainTilemap.SetTile(position, GetRandomTile(groundTiles));
-            }
-        }
-    }
-
-    private TileBase ChooseTopTile(bool hasSolidLeft, bool hasSolidRight)
+    private TileBase ChooseTopTile(bool hasSolidLeft, bool hasSolidRight, BiomeTileSet biome)
     {
         bool airOnLeft = !hasSolidLeft;
         bool airOnRight = !hasSolidRight;
 
-        // Jeśli po obu stronach jest powietrze, dajemy zwykły top.
-        // Czyli nie robimy isolated tile, bo tak chcesz wizualnie.
         if (airOnLeft && airOnRight)
         {
-            return GetRandomTile(topTiles);
+            return GetRandomTile(biome.topTiles);
         }
 
-        // Jeśli po lewej jest powietrze, to lewa krawędź.
-        if (airOnLeft && topLeftEdgeTiles.Length > 0)
+        if (airOnLeft && biome.topLeftEdgeTiles != null && biome.topLeftEdgeTiles.Length > 0)
         {
-            return GetRandomTile(topLeftEdgeTiles);
+            return GetRandomTile(biome.topLeftEdgeTiles);
         }
 
-        // Jeśli po prawej jest powietrze, to prawa krawędź.
-        if (airOnRight && topRightEdgeTiles.Length > 0)
+        if (airOnRight && biome.topRightEdgeTiles != null && biome.topRightEdgeTiles.Length > 0)
         {
-            return GetRandomTile(topRightEdgeTiles);
+            return GetRandomTile(biome.topRightEdgeTiles);
         }
 
-        // Normalny środek powierzchni.
-        return GetRandomTile(topTiles);
-    }
-    private bool HasPlatformAtHeight(LevelColumnData[] columns, int x, int y)
-    {
-        if (x < 0 || x >= columns.Length)
-        {
-            return false;
-        }
-
-        LevelColumnData column = columns[x];
-
-        return column.featureType == FeatureType.Platform &&
-               column.platformHeight == y;
-    }
-
-    private bool HasSolidAtHeight(LevelColumnData[] columns, int x, int y)
-    {
-        if (x < 0 || x >= columns.Length)
-        {
-            return false;
-        }
-
-        LevelColumnData column = columns[x];
-
-        // Normalny ground jest solidem od y=0 do groundHeight.
-        if (column.baseType == BaseColumnType.Ground)
-        {
-            return column.groundHeight >= y;
-        }
-
-        // Woda/lawa też liczą się jako "wypełniona" kolumna
-        // do swojej wysokości, żeby ground obok nie dostawał edge'a.
-        if (column.baseType == BaseColumnType.WaterGap ||
-            column.baseType == BaseColumnType.LavaGap)
-        {
-            return column.groundHeight >= y;
-        }
-
-        // Zwykły Gap to powietrze.
-        return false;
-    }
-    private bool HasGroundNeighbour(LevelColumnData[] columns, int x)
-    {
-        if (x < 0 || x >= columns.Length)
-        {
-            return false;
-        }
-
-        return columns[x].baseType == BaseColumnType.Ground;
-    }
-
-    private void DrawLiquidColumn(
-     LevelColumnData[] columns,
-     int x,
-     BaseColumnType liquidType,
-
-     TileBase[] topLeftTiles,
-     TileBase[] topMiddleTiles,
-     TileBase[] topRightTiles,
-     TileBase[] topSingleTiles,
-
-     TileBase[] middleTiles,
-
-     TileBase[] bottomLeftTiles,
-     TileBase[] bottomMiddleTiles,
-     TileBase[] bottomRightTiles,
-     TileBase[] bottomSingleTiles
- )
-    {
-        int liquidSurfaceHeight = columns[x].groundHeight;
-
-        bool hasSameLiquidLeft = HasSameBaseType(columns, x - 1, liquidType);
-        bool hasSameLiquidRight = HasSameBaseType(columns, x + 1, liquidType);
-
-        for (int y = 0; y <= liquidSurfaceHeight; y++)
-        {
-            Vector3Int position = new Vector3Int(x, y, 0);
-
-            TileBase tileToDraw;
-
-            if (y == liquidSurfaceHeight)
-            {
-                tileToDraw = ChooseHorizontalTile(
-                    hasSameLiquidLeft,
-                    hasSameLiquidRight,
-                    topLeftTiles,
-                    topMiddleTiles,
-                    topRightTiles,
-                    topSingleTiles
-                );
-            }
-            else if (y == 0)
-            {
-                tileToDraw = ChooseHorizontalTile(
-                    hasSameLiquidLeft,
-                    hasSameLiquidRight,
-                    bottomLeftTiles,
-                    bottomMiddleTiles,
-                    bottomRightTiles,
-                    bottomSingleTiles
-                );
-            }
-            else
-            {
-                tileToDraw = GetRandomTile(middleTiles);
-            }
-
-            mainTilemap.SetTile(position, tileToDraw);
-        }
-    }
-
-    private TileBase ChooseHorizontalTile(
-    bool hasSameLeft,
-    bool hasSameRight,
-    TileBase[] leftTiles,
-    TileBase[] middleTiles,
-    TileBase[] rightTiles,
-    TileBase[] singleTiles
-)
-    {
-        if (!hasSameLeft && !hasSameRight && singleTiles != null && singleTiles.Length > 0)
-        {
-            return GetRandomTile(singleTiles);
-        }
-
-        if (!hasSameLeft && leftTiles != null && leftTiles.Length > 0)
-        {
-            return GetRandomTile(leftTiles);
-        }
-
-        if (!hasSameRight && rightTiles != null && rightTiles.Length > 0)
-        {
-            return GetRandomTile(rightTiles);
-        }
-
-        return GetRandomTile(middleTiles);
-    }
-
-    private void DrawFeature(LevelColumnData[] columns, int x)
-    {
-        LevelColumnData column = columns[x];
-
-        if (column.featureType == FeatureType.Platform)
-        {
-            bool hasPlatformLeft = HasPlatformAtHeight(columns, x - 1, column.platformHeight);
-            bool hasPlatformRight = HasPlatformAtHeight(columns, x + 1, column.platformHeight);
-
-            TileBase platformTile = ChooseTopTile(hasPlatformLeft, hasPlatformRight);
-
-            Vector3Int position = new Vector3Int(x, column.platformHeight, 0);
-            mainTilemap.SetTile(position, platformTile);
-        }
-    }
-
-    private bool HasSameBaseType(LevelColumnData[] columns, int x, BaseColumnType type)
-    {
-        if (x < 0 || x >= columns.Length)
-        {
-            return false;
-        }
-
-        return columns[x].baseType == type;
+        return GetRandomTile(biome.topTiles);
     }
 
     private NeighbourType GetNeighbourTypeAtHeight(LevelColumnData[] columns, int x, int y)
@@ -449,14 +323,14 @@ public class TilemapDrawer : MonoBehaviour
             }
 
             // Liquid + Ground:
-            // liquid traktujemy jak brak ziemi, żeby ground dostał TL/TR od strony cieczy.
+            // liquid traktujemy jak brak gruntu, żeby ground dostał TL/TR od strony cieczy.
             if (oppositeNeighbour == NeighbourType.Ground)
             {
                 return false;
             }
 
             // Liquid + Liquid:
-            // traktujemy jak solid, żeby samotny ground w cieczy nie dostał dziwnych edge'ów z obu stron.
+            // traktujemy jak solid.
             if (oppositeNeighbour == NeighbourType.Liquid)
             {
                 return true;
@@ -465,6 +339,180 @@ public class TilemapDrawer : MonoBehaviour
 
         return false;
     }
+
+    private void DrawWaterColumn(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
+    {
+        DrawLiquidColumn(
+            columns,
+            localX,
+            worldX,
+            BaseColumnType.WaterGap,
+
+            waterTopLeftTiles,
+            waterTopMiddleTiles,
+            waterTopRightTiles,
+            waterTopSingleTiles,
+
+            waterMiddleTiles,
+
+            waterBottomLeftTiles,
+            waterBottomMiddleTiles,
+            waterBottomRightTiles,
+            waterBottomSingleTiles
+        );
+    }
+
+    private void DrawLavaColumn(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
+    {
+        DrawLiquidColumn(
+            columns,
+            localX,
+            worldX,
+            BaseColumnType.LavaGap,
+
+            lavaTopLeftTiles,
+            lavaTopMiddleTiles,
+            lavaTopRightTiles,
+            lavaTopSingleTiles,
+
+            lavaMiddleTiles,
+
+            lavaBottomLeftTiles,
+            lavaBottomMiddleTiles,
+            lavaBottomRightTiles,
+            lavaBottomSingleTiles
+        );
+    }
+
+    private void DrawLiquidColumn(
+        LevelColumnData[] columns,
+        int localX,
+        int worldX,
+        BaseColumnType liquidType,
+
+        TileBase[] topLeftTiles,
+        TileBase[] topMiddleTiles,
+        TileBase[] topRightTiles,
+        TileBase[] topSingleTiles,
+
+        TileBase[] middleTiles,
+
+        TileBase[] bottomLeftTiles,
+        TileBase[] bottomMiddleTiles,
+        TileBase[] bottomRightTiles,
+        TileBase[] bottomSingleTiles
+    )
+    {
+        int liquidSurfaceHeight = columns[localX].groundHeight;
+
+        bool hasSameLiquidLeft = HasSameBaseType(columns, localX - 1, liquidType);
+        bool hasSameLiquidRight = HasSameBaseType(columns, localX + 1, liquidType);
+
+        for (int y = 0; y <= liquidSurfaceHeight; y++)
+        {
+            Vector3Int position = new Vector3Int(worldX, y, 0);
+
+            TileBase tileToDraw;
+
+            if (y == liquidSurfaceHeight)
+            {
+                tileToDraw = ChooseHorizontalTile(
+                    hasSameLiquidLeft,
+                    hasSameLiquidRight,
+                    topLeftTiles,
+                    topMiddleTiles,
+                    topRightTiles,
+                    topSingleTiles
+                );
+            }
+            else if (y == 0)
+            {
+                tileToDraw = ChooseHorizontalTile(
+                    hasSameLiquidLeft,
+                    hasSameLiquidRight,
+                    bottomLeftTiles,
+                    bottomMiddleTiles,
+                    bottomRightTiles,
+                    bottomSingleTiles
+                );
+            }
+            else
+            {
+                tileToDraw = GetRandomTile(middleTiles);
+            }
+
+            mainTilemap.SetTile(position, tileToDraw);
+        }
+    }
+
+    private TileBase ChooseHorizontalTile(
+        bool hasSameLeft,
+        bool hasSameRight,
+        TileBase[] leftTiles,
+        TileBase[] middleTiles,
+        TileBase[] rightTiles,
+        TileBase[] singleTiles
+    )
+    {
+        if (!hasSameLeft && !hasSameRight && singleTiles != null && singleTiles.Length > 0)
+        {
+            return GetRandomTile(singleTiles);
+        }
+
+        if (!hasSameLeft && leftTiles != null && leftTiles.Length > 0)
+        {
+            return GetRandomTile(leftTiles);
+        }
+
+        if (!hasSameRight && rightTiles != null && rightTiles.Length > 0)
+        {
+            return GetRandomTile(rightTiles);
+        }
+
+        return GetRandomTile(middleTiles);
+    }
+
+    private void DrawFeature(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
+    {
+        LevelColumnData column = columns[localX];
+
+        if (column.featureType != FeatureType.Platform)
+        {
+            return;
+        }
+
+        bool hasPlatformLeft = HasPlatformAtHeight(columns, localX - 1, column.platformHeight);
+        bool hasPlatformRight = HasPlatformAtHeight(columns, localX + 1, column.platformHeight);
+
+        TileBase platformTile = ChooseTopTile(hasPlatformLeft, hasPlatformRight, biome);
+
+        Vector3Int position = new Vector3Int(worldX, column.platformHeight, 0);
+        mainTilemap.SetTile(position, platformTile);
+    }
+
+    private bool HasPlatformAtHeight(LevelColumnData[] columns, int x, int y)
+    {
+        if (x < 0 || x >= columns.Length)
+        {
+            return false;
+        }
+
+        LevelColumnData column = columns[x];
+
+        return column.featureType == FeatureType.Platform &&
+               column.platformHeight == y;
+    }
+
+    private bool HasSameBaseType(LevelColumnData[] columns, int x, BaseColumnType type)
+    {
+        if (x < 0 || x >= columns.Length)
+        {
+            return false;
+        }
+
+        return columns[x].baseType == type;
+    }
+
     private TileBase GetRandomTile(TileBase[] tiles)
     {
         if (tiles == null || tiles.Length == 0)

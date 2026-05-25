@@ -178,4 +178,26 @@ public class HeightLayoutGenerator : MonoBehaviour
 
         return 0;
     }
+
+    public void ApplySettings(ChunkGenerationSettings settings)
+    {
+        if (settings == null)
+        {
+            return;
+        }
+
+        minGroundHeight = settings.minGroundHeight;
+        maxGroundHeight = settings.maxGroundHeight;
+
+        chanceToContinueTrend = settings.chanceToContinueTrend;
+        chanceToStayFlat = settings.chanceToStayFlat;
+        chanceToReverseTrend = settings.chanceToReverseTrend;
+        chanceForBigStep = settings.chanceForBigStep;
+    }
+
+    public void ApplyHeights(LevelColumnData[] columns, ChunkGenerationSettings settings)
+    {
+        ApplySettings(settings);
+        ApplyHeights(columns);
+    }
 }
