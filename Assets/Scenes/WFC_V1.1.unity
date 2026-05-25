@@ -150,6 +150,189 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1232492856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &504958877
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 504958882}
+  - component: {fileID: 504958881}
+  - component: {fileID: 504958880}
+  - component: {fileID: 504958879}
+  - component: {fileID: 504958878}
+  m_Layer: 0
+  m_Name: WFC_GENERATOR
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &504958878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4caf6e62408ce3c4586ef5891e2a8e39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TilemapDrawer
+  mainTilemap: {fileID: 509146796}
+  groundTiles:
+  - {fileID: 11400000, guid: ccb118093f421314cb24da3d13d8039f, type: 2}
+  - {fileID: 11400000, guid: 0f80c493c63b0f242944abb8133d6241, type: 2}
+  - {fileID: 11400000, guid: bee66e8fa4d735849826059e5d457a81, type: 2}
+  - {fileID: 11400000, guid: ec5c298e4387e7548983fe72139d7fc9, type: 2}
+  - {fileID: 11400000, guid: db270f22018e2ba429ae3cc3bc5e5f6f, type: 2}
+  - {fileID: 11400000, guid: 73f3838710a961b4cae23aa640c81d10, type: 2}
+  - {fileID: 11400000, guid: dc98d0408d952a2448a6a70213468267, type: 2}
+  - {fileID: 11400000, guid: ded5dd0ec2d03474d98095b062a55bb2, type: 2}
+  - {fileID: 11400000, guid: 666f3daf4b1bd484ca628a48a79a0d7f, type: 2}
+  - {fileID: 11400000, guid: ec7352d0a7f69294c8e57c38d7c2f5b0, type: 2}
+  - {fileID: 11400000, guid: 61dbfd79b18f59e4386fe361305c4441, type: 2}
+  - {fileID: 11400000, guid: e2445dfe8ebaec54e9c75ed34e5343fb, type: 2}
+  - {fileID: 11400000, guid: cd2bf56099f1fd04c8b2bea92f4c8939, type: 2}
+  - {fileID: 11400000, guid: b54436deda28cdc4bb33ae0b3be40f2b, type: 2}
+  - {fileID: 11400000, guid: b12aa6ecd514d424d8111b4ee07eb09d, type: 2}
+  topTiles:
+  - {fileID: 11400000, guid: a1cc430f40658ce4d8b9b40f2887f4a1, type: 2}
+  - {fileID: 11400000, guid: 787cc7f9aa5bf92409348c7d75ca9113, type: 2}
+  - {fileID: 11400000, guid: d93308a8276cb2a4ab506a4177f12dad, type: 2}
+  topLeftEdgeTiles:
+  - {fileID: 11400000, guid: 4d41ac4c60cf5dc4da073521a2e31819, type: 2}
+  topRightEdgeTiles:
+  - {fileID: 11400000, guid: dc187f735ebf1f942ad05c89509c517f, type: 2}
+  topSingleTiles: []
+  waterTopLeftTiles:
+  - {fileID: 11400000, guid: 406e3967a86568241b806975b761a21b, type: 2}
+  waterTopMiddleTiles:
+  - {fileID: 11400000, guid: 84db7f1fe4a56a04297c2d938b18fe59, type: 2}
+  waterTopRightTiles:
+  - {fileID: 11400000, guid: 35463b3d48fa34c458d91ccc5d40c5ca, type: 2}
+  waterTopSingleTiles: []
+  waterMiddleTiles:
+  - {fileID: 11400000, guid: b8de349cbe2ebf44ebcd56393ab30de7, type: 2}
+  - {fileID: 11400000, guid: cf15ad98578e5dd44b9efad7bb6a5f37, type: 2}
+  - {fileID: 11400000, guid: 68e14079814dfe14e8eb1406116da5e0, type: 2}
+  - {fileID: 11400000, guid: 7bba3d59583466d44a2222c31bd57a33, type: 2}
+  - {fileID: 11400000, guid: a8977df919935e94586d799ecbc85a93, type: 2}
+  - {fileID: 11400000, guid: 13a75d78c3c8edc45bfd9d4fe1be2cd4, type: 2}
+  waterBottomLeftTiles:
+  - {fileID: 11400000, guid: 26ac649bc322a344e8eb551bc3ee149a, type: 2}
+  waterBottomMiddleTiles:
+  - {fileID: 11400000, guid: ddfb03234cc4baa45b658cffab0d7865, type: 2}
+  waterBottomRightTiles:
+  - {fileID: 11400000, guid: c49f822f8b2632d4aa258f033b7bee99, type: 2}
+  waterBottomSingleTiles: []
+  lavaTopLeftTiles:
+  - {fileID: 11400000, guid: 8d75b5c2753ac0b479b4671fdbeb4ca0, type: 2}
+  lavaTopMiddleTiles:
+  - {fileID: 11400000, guid: e08eab8fa62f16c4d8798ddd073df4ac, type: 2}
+  lavaTopRightTiles:
+  - {fileID: 11400000, guid: 88450c0ea899bf346bc45d545fe9d726, type: 2}
+  lavaTopSingleTiles: []
+  lavaMiddleTiles:
+  - {fileID: 11400000, guid: 6a748ff0777f04844bb7c49cf9e1a612, type: 2}
+  - {fileID: 11400000, guid: 3bcfa9463661e46459602ffdf017e59b, type: 2}
+  - {fileID: 11400000, guid: 0770a95a10bc47847a4d49ca6312ff33, type: 2}
+  - {fileID: 11400000, guid: ed18e2b2f67b3fb4a897f21ca773161c, type: 2}
+  - {fileID: 11400000, guid: b9c2a85a25f620f41a8bdbc53f5b29c6, type: 2}
+  - {fileID: 11400000, guid: 760054370dc7a364ca681e67fbe310d0, type: 2}
+  lavaBottomLeftTiles:
+  - {fileID: 11400000, guid: 41eef1677af673344a5898a9f6cf3aca, type: 2}
+  lavaBottomMiddleTiles:
+  - {fileID: 11400000, guid: c696e43590c0e9c4fa035e621183659d, type: 2}
+  lavaBottomRightTiles:
+  - {fileID: 11400000, guid: 1f05b1ddc2d87674984005dca1bbd618, type: 2}
+  lavaBottomSingleTiles: []
+  drawSpawnArea: 1
+  spawnStartX: -15
+  spawnEndX: -1
+  spawnGroundHeight: 1
+  spawnYOffset: 0
+  leftWallX: -16
+  leftWallHeight: 10
+--- !u!114 &504958879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f0fa3e591646244ab785bf35a96c09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlatformLayoutGenerator
+  minGapLengthForPlatform: 5
+  randomPlatformChance: 5
+  maxRandomPlatforms: 3
+  minPlatformLength: 2
+  maxPlatformLength: 4
+  minHeightAboveBase: 3
+  maxHeightAboveBase: 5
+  minDistanceBetweenPlatforms: 4
+--- !u!114 &504958880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d0f69a7697e4cc44a72f921f1abeae7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeightLayoutGenerator
+  startGroundHeight: 1
+  minGroundHeight: 1
+  maxGroundHeight: 10
+  chanceToContinueTrend: 45
+  chanceToStayFlat: 35
+  chanceToReverseTrend: 15
+  chanceForBigStep: 5
+  chanceForStepTwo: 80
+  chanceForStepThree: 20
+--- !u!114 &504958881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae708167b04d3e4290b8ae3ee66837a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaseLayoutGenerator
+  width: 64
+  startGroundLength: 3
+  minGapLength: 2
+  maxGapLength: 8
+  minGroundRunAfterGap: 3
+  heightLayoutGenerator: {fileID: 504958880}
+  platformLayoutGenerator: {fileID: 504958879}
+  tilemapDrawer: {fileID: 504958878}
+--- !u!4 &504958882
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.19244, y: 1.10424, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &509146793
 GameObject:
   m_ObjectHideFlags: 0
@@ -3638,7 +3821,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 3.75
+  orthographic size: 3.65625
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4956,59 +5139,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!1 &1900275483
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1900275485}
-  - component: {fileID: 1900275484}
-  m_Layer: 0
-  m_Name: WFCGenerator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1900275484
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1900275483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9fae8fc52832bb498dfa5535cabcea7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WFCGenerator
-  targetTilemap: {fileID: 509146796}
-  groundTile: {fileID: 11400000, guid: 73f3838710a961b4cae23aa640c81d10, type: 2}
-  topTile: {fileID: 11400000, guid: a1cc430f40658ce4d8b9b40f2887f4a1, type: 2}
-  platformTile: {fileID: 11400000, guid: e08eab8fa62f16c4d8798ddd073df4ac, type: 2}
-  width: 64
-  height: 16
-  maxAttempts: 30
-  forcedGroundRows: 2
-  maxTerrainHeight: 7
---- !u!4 &1900275485
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1900275483}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.58581, y: 5.11298, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1989574588
 GameObject:
   m_ObjectHideFlags: 0
@@ -5067,4 +5197,4 @@ SceneRoots:
   - {fileID: 1106861446}
   - {fileID: 1009905141}
   - {fileID: 1989574590}
-  - {fileID: 1900275485}
+  - {fileID: 504958882}
