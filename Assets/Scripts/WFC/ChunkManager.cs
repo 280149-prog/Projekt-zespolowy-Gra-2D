@@ -18,6 +18,7 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private HeightLayoutGenerator heightLayoutGenerator;
     [SerializeField] private PlatformLayoutGenerator platformLayoutGenerator;
     [SerializeField] private TilemapDrawer tilemapDrawer;
+    [SerializeField] private AStarGrid aStarGrid;
 
     private int lastGeneratedChunkIndex = -1;
 
@@ -32,8 +33,12 @@ public class ChunkManager : MonoBehaviour
 
         // Spawn rysujemy raz, osobno od chunków.
         tilemapDrawer.DrawSpawn(GetBiomeForChunk(0));
-
         GenerateInitialChunks();
+
+        if (aStarGrid != null)
+        {
+            aStarGrid.CreateGrid();
+        }
     }
 
     private void Update()
@@ -53,6 +58,13 @@ public class ChunkManager : MonoBehaviour
         while (lastGeneratedChunkIndex < desiredLastChunkIndex)
         {
             GenerateNextChunk();
+        }
+
+        // Wywolanie po dodaniu nowego chunka w trakcie gry
+        if (aStarGrid != null)
+        {
+            // Odswiezenie siatki aby uwzglednic nowy teren
+            aStarGrid.CreateGrid();
         }
     }
 

@@ -16,26 +16,26 @@ public class EnemyMovement : MonoBehaviour
 
     void Update()
     {
-        if (rb.position.x >= 20)
-        {
-            _isMovingRight = false;
-        }
+        //if (rb.position.x >= 20)
+        //{
+        //    _isMovingRight = false;
+        //}
 
-        if (rb.position.x <= 15)
-        {
-            _isMovingRight = true;
-        }
+        //if (rb.position.x <= 15)
+        //{
+        //    _isMovingRight = true;
+        //}
     }
 
     private void FixedUpdate()
     {
-        if (_isMovingRight)
-        {
-            rb.linearVelocity = new Vector2(patrolSpeed, rb.linearVelocity.y);
-        }
-        else
-        {
-            rb.linearVelocity = new Vector2(-patrolSpeed, rb.linearVelocity.y);
-        }
+        //if (_isMovingRight)
+        //{
+        //    rb.linearVelocity = new Vector2(patrolSpeed, rb.linearVelocity.y);
+        //}
+        //else
+        //{
+        //    rb.linearVelocity = new Vector2(-patrolSpeed, rb.linearVelocity.y);
+        //}
     }
 }
