@@ -19,6 +19,7 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private HeightLayoutGenerator heightLayoutGenerator;
     [SerializeField] private PlatformLayoutGenerator platformLayoutGenerator;
     [SerializeField] private TilemapDrawer tilemapDrawer;
+    [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private AStarGrid aStarGrid;
 
     private int lastGeneratedChunkIndex = -1;
@@ -33,6 +34,11 @@ public class ChunkManager : MonoBehaviour
 
         tilemapDrawer.ClearTilemap();
         heightLayoutGenerator.ResetHeightState();
+
+        if (enemySpawner != null)
+        {
+            enemySpawner.ClearAllSpawnedEnemies();
+        }
 
         // Spawn rysujemy raz, osobno od chunków.
         tilemapDrawer.DrawSpawn(GetBiomeForChunk(0));
@@ -84,6 +90,11 @@ public class ChunkManager : MonoBehaviour
 
         tilemapDrawer.ClearChunk(xOffset, chunkWidth);
 
+        if (enemySpawner != null)
+        {
+            enemySpawner.ClearEnemiesForChunk(chunkIndex);
+        }
+
         Debug.Log("ChunkManager: usunięto chunk " + chunkIndex + ", xOffset=" + xOffset);
     }
 
@@ -118,6 +129,11 @@ public class ChunkManager : MonoBehaviour
         platformLayoutGenerator.ApplyPlatforms(columns, settings);
 
         tilemapDrawer.DrawColumns(columns, xOffset, biome);
+
+        if (enemySpawner != null)
+        {
+            enemySpawner.SpawnEnemies(columns, xOffset, chunkIndex, GetDifficultyLevel(chunkIndex));
+        }
 
         Debug.Log(
             "ChunkManager: wygenerowano chunk " + chunkIndex +
@@ -159,7 +175,7 @@ public class ChunkManager : MonoBehaviour
 
     private int GetDifficultyLevel(int chunkIndex)
     {
-        // Co 10 chunków podbijamy poziom trudności.
+        // Co 4 chunki podbijamy poziom trudności.
         return chunkIndex / 4;
     }
 

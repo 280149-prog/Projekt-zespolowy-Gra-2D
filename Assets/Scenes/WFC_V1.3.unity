@@ -667,6 +667,7 @@ GameObject:
   - component: {fileID: 504958879}
   - component: {fileID: 504958878}
   - component: {fileID: 504958883}
+  - component: {fileID: 504958884}
   m_Layer: 0
   m_Name: WFC_GENERATOR
   m_TagString: Untagged
@@ -744,7 +745,7 @@ MonoBehaviour:
   spawnStartX: -15
   spawnEndX: -1
   spawnGroundHeight: 1
-  spawnYOffset: -2
+  spawnYOffset: 0
   leftWallX: -16
   leftWallHeight: 10
 --- !u!114 &504958879
@@ -837,6 +838,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChunkManager
   chunkWidth: 64
   chunksAhead: 3
+  chunksBehind: 2
   playerTransform: {fileID: 1957239551}
   biomes:
   - biomeName: Grass
@@ -922,7 +924,36 @@ MonoBehaviour:
   heightLayoutGenerator: {fileID: 504958880}
   platformLayoutGenerator: {fileID: 504958879}
   tilemapDrawer: {fileID: 504958878}
+  enemySpawner: {fileID: 504958884}
   aStarGrid: {fileID: 229917237}
+--- !u!114 &504958884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504958877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57a7a0de58c11ff479880d5c49aa0b68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  walkingEnemyPrefab: {fileID: 20996379}
+  flyingEnemyPrefab: {fileID: 207114594}
+  minChunkIndexForEnemies: 1
+  minFlatGroundLength: 3
+  minDistanceFromChunkEdge: 2
+  baseSpawnChancePercent: 40
+  spawnChancePerDifficulty: 8
+  baseMaxEnemiesPerChunk: 2
+  extraEnemiesPerDifficulty: 1
+  absoluteMaxEnemiesPerChunk: 6
+  walkingWeightWithoutPlatform: 75
+  flyingWeightWithoutPlatform: 25
+  walkingWeightWithPlatform: 30
+  flyingWeightWithPlatform: 70
+  walkingYOffset: 1
+  flyingYOffset: 3
 --- !u!1 &509146793
 GameObject:
   m_ObjectHideFlags: 0
@@ -4411,7 +4442,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 3.75
+  orthographic size: 3.65625
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
