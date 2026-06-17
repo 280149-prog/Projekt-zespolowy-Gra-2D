@@ -5,6 +5,7 @@ public class ChunkManager : MonoBehaviour
     [Header("Chunk settings")]
     [SerializeField] private int chunkWidth = 64;
     [SerializeField] private int chunksAhead = 3;
+    [SerializeField] private int chunksBehind = 2;
 
     [Header("Player")]
     [SerializeField] private Transform playerTransform;
@@ -21,6 +22,7 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private AStarGrid aStarGrid;
 
     private int lastGeneratedChunkIndex = -1;
+    private int firstGeneratedChunkIndex = 0;
 
     private void Start()
     {
@@ -30,6 +32,7 @@ public class ChunkManager : MonoBehaviour
         }
 
         tilemapDrawer.ClearTilemap();
+        heightLayoutGenerator.ResetHeightState();
 
         // Spawn rysujemy raz, osobno od chunków.
         tilemapDrawer.DrawSpawn(GetBiomeForChunk(0));
@@ -50,22 +53,38 @@ public class ChunkManager : MonoBehaviour
 
         int playerChunkIndex = GetPlayerChunkIndex();
 
-        // Jeśli chunksAhead = 3:
-        // gracz w chunku 0 -> mamy mieć wygenerowane 0, 1, 2
-        // gracz w chunku 1 -> mamy mieć wygenerowane 0, 1, 2, 3
         int desiredLastChunkIndex = playerChunkIndex + chunksAhead - 1;
+
+        bool mapChanged = false;
 
         while (lastGeneratedChunkIndex < desiredLastChunkIndex)
         {
             GenerateNextChunk();
+            mapChanged = true;
         }
 
-        // Wywolanie po dodaniu nowego chunka w trakcie gry
-        if (aStarGrid != null)
+        int oldestAllowedChunkIndex = Mathf.Max(0, playerChunkIndex - chunksBehind);
+
+        while (firstGeneratedChunkIndex < oldestAllowedChunkIndex)
         {
-            // Odswiezenie siatki aby uwzglednic nowy teren
+            UnloadChunk(firstGeneratedChunkIndex);
+            firstGeneratedChunkIndex++;
+            mapChanged = true;
+        }
+
+        if (mapChanged && aStarGrid != null)
+        {
             aStarGrid.CreateGrid();
         }
+    }
+
+    private void UnloadChunk(int chunkIndex)
+    {
+        int xOffset = chunkIndex * chunkWidth;
+
+        tilemapDrawer.ClearChunk(xOffset, chunkWidth);
+
+        Debug.Log("ChunkManager: usunięto chunk " + chunkIndex + ", xOffset=" + xOffset);
     }
 
     private void GenerateInitialChunks()

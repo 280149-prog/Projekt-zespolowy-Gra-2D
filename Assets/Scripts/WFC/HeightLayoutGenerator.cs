@@ -17,6 +17,17 @@ public class HeightLayoutGenerator : MonoBehaviour
     [SerializeField] private int chanceForStepTwo = 80;
     [SerializeField] private int chanceForStepThree = 20;
 
+    private int lastGroundHeight;
+    private int lastTrend;
+    private bool hasHeightState;
+
+    public void ResetHeightState()
+    {
+        lastGroundHeight = startGroundHeight;
+        lastTrend = 0;
+        hasHeightState = false;
+    }
+
     public void ApplyHeights(LevelColumnData[] columns)
     {
         if (columns == null)
@@ -25,44 +36,56 @@ public class HeightLayoutGenerator : MonoBehaviour
             return;
         }
 
-        int currentHeight = startGroundHeight;
+        int currentHeight = hasHeightState ? lastGroundHeight : startGroundHeight;
+        int currentTrend = hasHeightState ? lastTrend : 0;
 
-        // trend:
-        //  1 = teren szedł w górę
-        //  0 = teren był płaski
-        // -1 = teren szedł w dół
-        int currentTrend = 0;
+        bool previousWasLiquidGap = false;
 
         for (int x = 0; x < columns.Length; x++)
         {
             if (columns[x].baseType == BaseColumnType.Ground)
             {
-                int heightChange = ChooseHeightChange(currentTrend);
+                if (previousWasLiquidGap)
+                {
+                    // Po wodzie/lawie teren wraca na tę samą wysokość,
+                    // żeby brzegi cieczy były płaskie.
+                    columns[x].groundHeight = currentHeight;
+                    currentTrend = 0;
+                }
+                else
+                {
+                    int heightChange = ChooseHeightChange(currentTrend);
 
-                int newHeight = currentHeight + heightChange;
-                newHeight = Mathf.Clamp(newHeight, minGroundHeight, maxGroundHeight);
+                    int newHeight = currentHeight + heightChange;
+                    newHeight = Mathf.Clamp(newHeight, minGroundHeight, maxGroundHeight);
 
-                // Jeśli clamp zablokował zmianę, to traktujemy to jako płasko.
-                int realChange = newHeight - currentHeight;
+                    int realChange = newHeight - currentHeight;
 
-                currentHeight = newHeight;
-                columns[x].groundHeight = currentHeight;
+                    currentHeight = newHeight;
+                    columns[x].groundHeight = currentHeight;
 
-                currentTrend = GetTrendFromChange(realChange);
+                    currentTrend = GetTrendFromChange(realChange);
+                }
+
+                previousWasLiquidGap = false;
             }
             else
             {
-                // Gap / WaterGap / LavaGap nie mają normalnego gruntu,
-                // ale zapamiętują wysokość ostatniego gruntu.
-                // Dzięki temu woda/lawa może być rysowana na poziomie poprzedniej ziemi.
                 columns[x].groundHeight = currentHeight;
 
-                // Trend zostawiamy bez zmian.
-                // Dzięki temu po przeszkodzie teren może kontynuować poprzedni kierunek.
+                if (columns[x].baseType == BaseColumnType.WaterGap ||
+                    columns[x].baseType == BaseColumnType.LavaGap)
+                {
+                    previousWasLiquidGap = true;
+                }
             }
         }
 
-        Debug.Log("HeightLayoutGenerator: ustawiono wysokości z trendem.");
+        lastGroundHeight = currentHeight;
+        lastTrend = currentTrend;
+        hasHeightState = true;
+
+        Debug.Log("HeightLayoutGenerator: ustawiono wysokości z pamięcią poprzedniego chunka.");
     }
 
     private int ChooseHeightChange(int currentTrend)
@@ -102,19 +125,10 @@ public class HeightLayoutGenerator : MonoBehaviour
     {
         if (currentTrend == 0)
         {
-            // Jeśli nie mamy trendu, wybierz delikatnie górę/dół albo płasko.
             int roll = Random.Range(0, 3);
 
-            if (roll == 0)
-            {
-                return -1;
-            }
-
-            if (roll == 1)
-            {
-                return 0;
-            }
-
+            if (roll == 0) return -1;
+            if (roll == 1) return 0;
             return 1;
         }
 
@@ -126,13 +140,7 @@ public class HeightLayoutGenerator : MonoBehaviour
         if (currentTrend == 0)
         {
             int roll = Random.Range(0, 2);
-
-            if (roll == 0)
-            {
-                return -1;
-            }
-
-            return 1;
+            return roll == 0 ? -1 : 1;
         }
 
         return -currentTrend;
@@ -149,33 +157,15 @@ public class HeightLayoutGenerator : MonoBehaviour
         }
 
         int roll = Random.Range(0, 100);
-
-        int stepSize;
-
-        if (roll < chanceForStepTwo)
-        {
-            stepSize = 2;
-        }
-        else
-        {
-            stepSize = 3;
-        }
+        int stepSize = roll < chanceForStepTwo ? 2 : 3;
 
         return direction * stepSize;
     }
 
     private int GetTrendFromChange(int change)
     {
-        if (change > 0)
-        {
-            return 1;
-        }
-
-        if (change < 0)
-        {
-            return -1;
-        }
-
+        if (change > 0) return 1;
+        if (change < 0) return -1;
         return 0;
     }
 

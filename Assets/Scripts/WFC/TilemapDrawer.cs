@@ -279,9 +279,13 @@ public class TilemapDrawer : MonoBehaviour
 
     private NeighbourType GetNeighbourTypeAtHeight(LevelColumnData[] columns, int x, int y)
     {
-        if (x < 0 || x >= columns.Length)
+        if (x < 0)
         {
-            return NeighbourType.Air;
+            x = 0;
+        }
+        else if (x >= columns.Length)
+        {
+            x = columns.Length - 1;
         }
 
         LevelColumnData column = columns[x];
@@ -505,9 +509,13 @@ public class TilemapDrawer : MonoBehaviour
 
     private bool HasSameBaseType(LevelColumnData[] columns, int x, BaseColumnType type)
     {
-        if (x < 0 || x >= columns.Length)
+        if (x < 0)
         {
-            return false;
+            x = 0;
+        }
+        else if (x >= columns.Length)
+        {
+            x = columns.Length - 1;
         }
 
         return columns[x].baseType == type;
@@ -521,5 +529,26 @@ public class TilemapDrawer : MonoBehaviour
         }
 
         return tiles[Random.Range(0, tiles.Length)];
+    }
+
+    public void ClearChunk(int xOffset, int width)
+    {
+        if (mainTilemap == null)
+        {
+            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            return;
+        }
+
+        BoundsInt bounds = mainTilemap.cellBounds;
+
+        for (int x = xOffset; x < xOffset + width; x++)
+        {
+            for (int y = bounds.yMin; y < bounds.yMax; y++)
+            {
+                mainTilemap.SetTile(new Vector3Int(x, y, 0), null);
+            }
+        }
+
+        Debug.Log("TilemapDrawer: usunięto chunk z offsetem x = " + xOffset);
     }
 }
