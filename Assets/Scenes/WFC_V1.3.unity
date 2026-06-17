@@ -926,6 +926,11 @@ MonoBehaviour:
   tilemapDrawer: {fileID: 504958878}
   enemySpawner: {fileID: 504958884}
   aStarGrid: {fileID: 229917237}
+  autoResizeAStarGrid: 1
+  aStarExtraLeft: 20
+  aStarExtraRight: 8
+  aStarBottomY: -6
+  aStarTopY: 20
 --- !u!114 &504958884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -943,7 +948,7 @@ MonoBehaviour:
   minChunkIndexForEnemies: 1
   minFlatGroundLength: 3
   minDistanceFromChunkEdge: 2
-  baseSpawnChancePercent: 40
+  baseSpawnChancePercent: 50
   spawnChancePerDifficulty: 8
   baseMaxEnemiesPerChunk: 2
   extraEnemiesPerDifficulty: 1
@@ -4442,7 +4447,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 3.65625
+  orthographic size: 3.61875
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

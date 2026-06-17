@@ -22,6 +22,13 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private AStarGrid aStarGrid;
 
+    [Header("A* grid auto resize")]
+    [SerializeField] private bool autoResizeAStarGrid = true;
+    [SerializeField] private float aStarExtraLeft = 20f;
+    [SerializeField] private float aStarExtraRight = 8f;
+    [SerializeField] private float aStarBottomY = -6f;
+    [SerializeField] private float aStarTopY = 20f;
+
     private int lastGeneratedChunkIndex = -1;
     private int firstGeneratedChunkIndex = 0;
 
@@ -44,10 +51,7 @@ public class ChunkManager : MonoBehaviour
         tilemapDrawer.DrawSpawn(GetBiomeForChunk(0));
         GenerateInitialChunks();
 
-        if (aStarGrid != null)
-        {
-            aStarGrid.CreateGrid();
-        }
+        RefreshAStarGrid();
     }
 
     private void Update()
@@ -78,10 +82,36 @@ public class ChunkManager : MonoBehaviour
             mapChanged = true;
         }
 
-        if (mapChanged && aStarGrid != null)
+        if (mapChanged)
         {
-            aStarGrid.CreateGrid();
+            RefreshAStarGrid();
         }
+    }
+
+    private void RefreshAStarGrid()
+    {
+        if (aStarGrid == null)
+        {
+            return;
+        }
+
+        if (autoResizeAStarGrid)
+        {
+            float minX = firstGeneratedChunkIndex * chunkWidth - aStarExtraLeft;
+            float maxX = (lastGeneratedChunkIndex + 1) * chunkWidth + aStarExtraRight;
+
+            float width = Mathf.Max(1f, maxX - minX);
+            float height = Mathf.Max(1f, aStarTopY - aStarBottomY);
+
+            Vector3 gridPosition = aStarGrid.transform.position;
+            gridPosition.x = minX + width / 2f;
+            gridPosition.y = aStarBottomY + height / 2f;
+            aStarGrid.transform.position = gridPosition;
+
+            aStarGrid.GridWorldSize = new Vector2(width, height);
+        }
+
+        aStarGrid.CreateGrid();
     }
 
     private void UnloadChunk(int chunkIndex)

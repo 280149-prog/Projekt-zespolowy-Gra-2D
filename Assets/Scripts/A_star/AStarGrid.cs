@@ -37,13 +37,20 @@ public class AStarGrid : MonoBehaviour
 
     private void Awake()
     {
+        RecalculateGridDimensions();
+    }
+
+    private void RecalculateGridDimensions()
+    {
         _nodeDiameter = NodeRadius * 2f;
-        _gridSizeX = Mathf.RoundToInt(GridWorldSize.x / _nodeDiameter);
-        _gridSizeY = Mathf.RoundToInt(GridWorldSize.y / _nodeDiameter);
+        _gridSizeX = Mathf.Max(1, Mathf.RoundToInt(GridWorldSize.x / _nodeDiameter));
+        _gridSizeY = Mathf.Max(1, Mathf.RoundToInt(GridWorldSize.y / _nodeDiameter));
     }
 
     public void CreateGrid()
     {
+        RecalculateGridDimensions();
+
         _grid = new AStarNode[_gridSizeX, _gridSizeY];
 
         Vector2 worldBottomLeft = (Vector2)transform.position
