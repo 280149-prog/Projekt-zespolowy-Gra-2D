@@ -6,6 +6,8 @@ public class PlayerHealth : MonoBehaviour
 
     [Header("Health")]
     public int healths = 3;
+    [SerializeField] private LayerMask instantDeathMask;
+
     private bool _isPlaying = true;
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -17,6 +19,15 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (IsInLayerMask(other.gameObject.layer, instantDeathMask))
+        {
+            healths = 0;
+            Debug.Log("Instant death hazard!");
+        }
+    }
+
     void Update()
     {
         // Testowo
@@ -25,5 +36,10 @@ public class PlayerHealth : MonoBehaviour
             Debug.Log("Koniec gry!");
             _isPlaying = false;
         }
+    }
+
+    private bool IsInLayerMask(int layer, LayerMask layerMask)
+    {
+        return (layerMask.value & (1 << layer)) != 0;
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 public class TilemapDrawer : MonoBehaviour
@@ -11,7 +12,10 @@ public class TilemapDrawer : MonoBehaviour
     }
 
     [Header("Tilemaps")]
-    [SerializeField] private Tilemap mainTilemap;
+    [FormerlySerializedAs("mainTilemap")]
+    [SerializeField] private Tilemap groundTilemap;
+    [SerializeField] private Tilemap hazardTilemap;
+    [SerializeField] private Tilemap decorationTilemap;
 
     [Header("Biome")]
     [SerializeField] private BiomeTileSet currentBiome;
@@ -46,6 +50,21 @@ public class TilemapDrawer : MonoBehaviour
     [SerializeField] private TileBase[] lavaBottomRightTiles;
     [SerializeField] private TileBase[] lavaBottomSingleTiles;
 
+    [Header("Shared spike tiles")]
+    [SerializeField] private TileBase[] spikeTiles;
+
+    [Header("Air gap hazards")]
+    [SerializeField] private bool drawSpikesInGaps = true;
+    [SerializeField] private int spikeY = 0;
+
+    [Header("Decorations")]
+    [SerializeField] private bool drawDecorations = true;
+    [Range(0, 100)]
+    [SerializeField] private int smallDecorationChancePercent = 8;
+    [Range(0, 100)]
+    [SerializeField] private int tallDecorationChancePercent = 3;
+    [SerializeField] private int minDecorationDistanceFromEdge = 1;
+
     [Header("Spawn area")]
     [SerializeField] private bool drawSpawnArea = true;
     [SerializeField] private int spawnStartX = -15;
@@ -64,7 +83,7 @@ public class TilemapDrawer : MonoBehaviour
             return;
         }
 
-        mainTilemap.ClearAllTiles();
+        ClearTilemap();
 
         if (drawSpawnArea)
         {
@@ -91,6 +110,7 @@ public class TilemapDrawer : MonoBehaviour
 
             DrawBaseColumn(columns, x, worldX, biome);
             DrawFeature(columns, x, worldX, biome);
+            DrawDecoration(columns, x, worldX, biome);
         }
 
         Debug.Log("TilemapDrawer: narysowano chunk z offsetem x = " + xOffset);
@@ -99,18 +119,28 @@ public class TilemapDrawer : MonoBehaviour
     // Przyda się później dla ChunkManagera.
     public void ClearTilemap()
     {
-        if (mainTilemap != null)
+        if (groundTilemap != null)
         {
-            mainTilemap.ClearAllTiles();
+            groundTilemap.ClearAllTiles();
+        }
+
+        if (hazardTilemap != null)
+        {
+            hazardTilemap.ClearAllTiles();
+        }
+
+        if (decorationTilemap != null)
+        {
+            decorationTilemap.ClearAllTiles();
         }
     }
 
     // Przyda się później dla ChunkManagera.
     public void DrawSpawn(BiomeTileSet biome)
     {
-        if (mainTilemap == null)
+        if (groundTilemap == null)
         {
-            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            Debug.LogError("TilemapDrawer: nie podpięto groundTilemap.");
             return;
         }
 
@@ -131,9 +161,9 @@ public class TilemapDrawer : MonoBehaviour
             return false;
         }
 
-        if (mainTilemap == null)
+        if (groundTilemap == null)
         {
-            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            Debug.LogError("TilemapDrawer: nie podpięto groundTilemap.");
             return false;
         }
 
@@ -167,11 +197,11 @@ public class TilemapDrawer : MonoBehaviour
 
             if (y == leftWallHeight)
             {
-                mainTilemap.SetTile(position, GetRandomTile(biome.topTiles));
+                groundTilemap.SetTile(position, GetRandomTile(biome.topTiles));
             }
             else
             {
-                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
+                groundTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
             }
         }
     }
@@ -200,7 +230,7 @@ public class TilemapDrawer : MonoBehaviour
         }
         else if (column.baseType == BaseColumnType.Gap)
         {
-            // Zwykła przepaść - nic nie rysujemy.
+            DrawGapHazard(worldX, biome);
         }
     }
 
@@ -219,11 +249,11 @@ public class TilemapDrawer : MonoBehaviour
             if (y == groundHeight)
             {
                 TileBase topTile = ChooseTopTile(hasSolidLeft, hasSolidRight, biome);
-                mainTilemap.SetTile(position, topTile);
+                groundTilemap.SetTile(position, topTile);
             }
             else
             {
-                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
+                groundTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
             }
         }
     }
@@ -245,11 +275,11 @@ public class TilemapDrawer : MonoBehaviour
             if (y == groundHeight)
             {
                 TileBase topTile = ChooseTopTile(hasSolidLeft, hasSolidRight, biome);
-                mainTilemap.SetTile(position, topTile);
+                groundTilemap.SetTile(position, topTile);
             }
             else
             {
-                mainTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
+                groundTilemap.SetTile(position, GetRandomTile(biome.groundTiles));
             }
         }
     }
@@ -445,8 +475,29 @@ public class TilemapDrawer : MonoBehaviour
                 tileToDraw = GetRandomTile(middleTiles);
             }
 
-            mainTilemap.SetTile(position, tileToDraw);
+            if (hazardTilemap != null)
+            {
+                hazardTilemap.SetTile(position, tileToDraw);
+            }
         }
+    }
+
+    private void DrawGapHazard(int worldX, BiomeTileSet biome)
+    {
+        if (!drawSpikesInGaps || hazardTilemap == null)
+        {
+            return;
+        }
+
+        TileBase spikeTile = GetRandomTile(spikeTiles);
+
+        if (spikeTile == null)
+        {
+            return;
+        }
+
+        Vector3Int position = new Vector3Int(worldX, spikeY, 0);
+        hazardTilemap.SetTile(position, spikeTile);
     }
 
     private TileBase ChooseHorizontalTile(
@@ -491,7 +542,72 @@ public class TilemapDrawer : MonoBehaviour
         TileBase platformTile = ChooseTopTile(hasPlatformLeft, hasPlatformRight, biome);
 
         Vector3Int position = new Vector3Int(worldX, column.platformHeight, 0);
-        mainTilemap.SetTile(position, platformTile);
+        groundTilemap.SetTile(position, platformTile);
+    }
+
+    private void DrawDecoration(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
+    {
+        if (!drawDecorations || decorationTilemap == null)
+        {
+            return;
+        }
+
+        LevelColumnData column = columns[localX];
+
+        if (column.baseType != BaseColumnType.Ground)
+        {
+            return;
+        }
+
+        if (column.featureType == FeatureType.Platform)
+        {
+            return;
+        }
+
+        if (IsNearGap(columns, localX, minDecorationDistanceFromEdge))
+        {
+            return;
+        }
+
+        TileBase decorationTile = null;
+
+        if (Random.Range(0, 100) < tallDecorationChancePercent)
+        {
+            decorationTile = GetRandomTile(biome.tallDecorationTiles);
+        }
+
+        if (decorationTile == null && Random.Range(0, 100) < smallDecorationChancePercent)
+        {
+            decorationTile = GetRandomTile(biome.smallDecorationTiles);
+        }
+
+        if (decorationTile == null)
+        {
+            return;
+        }
+
+        Vector3Int position = new Vector3Int(worldX, column.groundHeight + 1, 0);
+        decorationTilemap.SetTile(position, decorationTile);
+    }
+
+    private bool IsNearGap(LevelColumnData[] columns, int localX, int distance)
+    {
+        for (int offset = -distance; offset <= distance; offset++)
+        {
+            int x = localX + offset;
+
+            if (x < 0 || x >= columns.Length)
+            {
+                continue;
+            }
+
+            if (columns[x].baseType != BaseColumnType.Ground)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool HasPlatformAtHeight(LevelColumnData[] columns, int x, int y)
@@ -533,22 +649,63 @@ public class TilemapDrawer : MonoBehaviour
 
     public void ClearChunk(int xOffset, int width)
     {
-        if (mainTilemap == null)
+        if (groundTilemap == null)
         {
-            Debug.LogError("TilemapDrawer: nie podpięto mainTilemap.");
+            Debug.LogError("TilemapDrawer: nie podpięto groundTilemap.");
             return;
         }
 
-        BoundsInt bounds = mainTilemap.cellBounds;
+        BoundsInt bounds = groundTilemap.cellBounds;
+
+        if (hazardTilemap != null)
+        {
+            bounds = EncapsulateBounds(bounds, hazardTilemap.cellBounds);
+        }
+
+        if (decorationTilemap != null)
+        {
+            bounds = EncapsulateBounds(bounds, decorationTilemap.cellBounds);
+        }
 
         for (int x = xOffset; x < xOffset + width; x++)
         {
             for (int y = bounds.yMin; y < bounds.yMax; y++)
             {
-                mainTilemap.SetTile(new Vector3Int(x, y, 0), null);
+                Vector3Int position = new Vector3Int(x, y, 0);
+                groundTilemap.SetTile(position, null);
+
+                if (hazardTilemap != null)
+                {
+                    hazardTilemap.SetTile(position, null);
+                }
+
+                if (decorationTilemap != null)
+                {
+                    decorationTilemap.SetTile(position, null);
+                }
             }
         }
 
         Debug.Log("TilemapDrawer: usunięto chunk z offsetem x = " + xOffset);
+    }
+
+    private BoundsInt EncapsulateBounds(BoundsInt first, BoundsInt second)
+    {
+        int minX = Mathf.Min(first.xMin, second.xMin);
+        int minY = Mathf.Min(first.yMin, second.yMin);
+        int minZ = Mathf.Min(first.zMin, second.zMin);
+
+        int maxX = Mathf.Max(first.xMax, second.xMax);
+        int maxY = Mathf.Max(first.yMax, second.yMax);
+        int maxZ = Mathf.Max(first.zMax, second.zMax);
+
+        return new BoundsInt(
+            minX,
+            minY,
+            minZ,
+            maxX - minX,
+            maxY - minY,
+            maxZ - minZ
+        );
     }
 }

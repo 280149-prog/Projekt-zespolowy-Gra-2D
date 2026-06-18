@@ -19,6 +19,7 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private HeightLayoutGenerator heightLayoutGenerator;
     [SerializeField] private PlatformLayoutGenerator platformLayoutGenerator;
     [SerializeField] private TilemapDrawer tilemapDrawer;
+    [SerializeField] private DecorationSpawner decorationSpawner;
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private AStarGrid aStarGrid;
 
@@ -45,6 +46,11 @@ public class ChunkManager : MonoBehaviour
         if (enemySpawner != null)
         {
             enemySpawner.ClearAllSpawnedEnemies();
+        }
+
+        if (decorationSpawner != null)
+        {
+            decorationSpawner.ClearAllDecorations();
         }
 
         // Spawn rysujemy raz, osobno od chunków.
@@ -125,6 +131,11 @@ public class ChunkManager : MonoBehaviour
             enemySpawner.ClearEnemiesForChunk(chunkIndex);
         }
 
+        if (decorationSpawner != null)
+        {
+            decorationSpawner.ClearDecorationsForChunk(chunkIndex);
+        }
+
         Debug.Log("ChunkManager: usunięto chunk " + chunkIndex + ", xOffset=" + xOffset);
     }
 
@@ -159,6 +170,11 @@ public class ChunkManager : MonoBehaviour
         platformLayoutGenerator.ApplyPlatforms(columns, settings);
 
         tilemapDrawer.DrawColumns(columns, xOffset, biome);
+
+        if (decorationSpawner != null)
+        {
+            decorationSpawner.SpawnDecorations(columns, xOffset, chunkIndex, biome);
+        }
 
         if (enemySpawner != null)
         {
