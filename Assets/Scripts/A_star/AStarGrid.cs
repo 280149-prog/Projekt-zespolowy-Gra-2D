@@ -22,9 +22,6 @@ public class AStarGrid : MonoBehaviour
     [Header("Debug")]
     public bool DrawGizmos = true;
 
-    [Tooltip("Rysuj tylko WalkableFloor (zielone) i Obstacle (czerwone), pomijaj Air")]
-    public bool GizmosHideAir = true;
-
     private AStarNode[,] _grid;
     private float _nodeDiameter;
     private int _gridSizeX;
@@ -122,14 +119,39 @@ public class AStarGrid : MonoBehaviour
                 int nx = node.GridX + dx;
                 int ny = node.GridY + dy;
 
+                // Sprawdzenie granic mapy dla sąsiada
                 if (nx < 0 || nx >= _gridSizeX || ny < 0 || ny >= _gridSizeY) continue;
 
                 AStarNode neighbour = _grid[nx, ny];
 
-                // Obstacle zawsze blokuje
+                // Przeszkoda na węźle docelowym zawsze całkowicie blokuje wejście
                 if (neighbour.NodeType == AStarNode.ENodeType.Obstacle) continue;
 
-                // Nielatajacy wrog tylko na WalkableFloor - TODO: dodac skakanie
+                // --- INTELIGENTNA BLOKADA RUCHÓW PO SKOSIE (Twój schemat) ---
+                if (dx != 0 && dy != 0)
+                {
+                    // Szukamy dwóch węzłów bezpośrednio stykających się z obecną pozycją (node)
+                    // w kierunku, w którym chcemy wykonać skos (dokładnie czerwone pola z rysunku)
+                    int checkX = node.GridX + dx;
+                    int checkY = node.GridY + dy;
+
+                    // Upewniamy się, że pozycje sprawdzane nie wychodzą poza tablicę siatki
+                    if (checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkY < _gridSizeY)
+                    {
+                        AStarNode sideH = _grid[checkX, node.GridY]; // Blok obok (lewo/prawo)
+                        AStarNode sideV = _grid[node.GridX, checkY]; // Blok obok (góra/dół)
+
+                        // Jeśli choć jedno z tych pól to Obstacle, ruch po skosie grozi kolizją.
+                        // Odrzucamy ten skos – A* zostanie zmuszony pójść pod kątem prostym (90 stopni).
+                        if (sideH.NodeType == AStarNode.ENodeType.Obstacle ||
+                            sideV.NodeType == AStarNode.ENodeType.Obstacle)
+                        {
+                            continue;
+                        }
+                    }
+                }
+
+                // Nielatający wróg tylko na WalkableFloor
                 if (!canFly && neighbour.NodeType == AStarNode.ENodeType.Air) continue;
 
                 neighbours.Add(neighbour);
@@ -146,35 +168,35 @@ public class AStarGrid : MonoBehaviour
             node.ResetCosts();
     }
 
-    private void OnDrawGizmos()
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = new Color(0.3f, 0.3f, 1f, 0.4f);
+    //    Gizmos.DrawWireCube(transform.position,
+    //                        new Vector3(GridWorldSize.x, GridWorldSize.y, 0.1f));
+
+    //    if (!DrawGizmos || _grid == null) return;
+
+    //    float size = _nodeDiameter - 0.04f;
+
+    //    foreach (AStarNode node in _grid)
+    //    {
+    //        switch (node.NodeType)
+    //        {
+    //            case AStarNode.ENodeType.Obstacle:
+    //                Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Czerwony
+    //                break;
+
+    //            case AStarNode.ENodeType.WalkableFloor:
+    //                Gizmos.color = new Color(0f, 1f, 0f, 0.3f); // Zielony
+    //                break;
+    //        }
+
+    //        Gizmos.DrawCube(node.WorldPosition, new Vector3(size, size, 0.01f));
+    //    }
+    //}
+
+    private void Start()
     {
-        Gizmos.color = new Color(0.3f, 0.3f, 1f, 0.4f);
-        Gizmos.DrawWireCube(transform.position,
-                            new Vector3(GridWorldSize.x, GridWorldSize.y, 0.1f));
-
-        if (!DrawGizmos || _grid == null) return;
-
-        float size = _nodeDiameter - 0.04f;
-
-        foreach (AStarNode node in _grid)
-        {
-            switch (node.NodeType)
-            {
-                case AStarNode.ENodeType.Obstacle:
-                    Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Czerwony
-                    break;
-
-                case AStarNode.ENodeType.WalkableFloor:
-                    Gizmos.color = new Color(0f, 1f, 0f, 0.3f); // Zielony
-                    break;
-
-                case AStarNode.ENodeType.Air:
-                    if (GizmosHideAir) continue;
-                    Gizmos.color = new Color(0f, 0f, 1f, 0.3f); // Niebieski
-                    break;
-            }
-
-            Gizmos.DrawCube(node.WorldPosition, new Vector3(size, size, 0.01f));
-        }
+        CreateGrid();
     }
 }

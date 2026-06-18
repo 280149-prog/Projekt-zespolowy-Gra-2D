@@ -15,15 +15,13 @@ public class PlayerMovement : MonoBehaviour
     public int maxJumps = 2;
     int _jumpsRemaining;
 
-    // W pozniejszym etapie dodamy bufor skoku, zeby nie trzeba bylo skoczyc w idealnym momencie
-    //[Header("Jump Buffer")]
-    //public float jumpBufferTime = 0.15f;
-
-    //float _jumpBufferCounter;
+    [Header("Jump Buffer")]
+    public float jumpBufferTime = 0.15f;
+    float _jumpBufferCounter;
 
     [Header("Ground Check")]
     public Transform groundCheckPos;
-    public Vector2 groundCheckSize = new Vector2 (0.65f, 0.05f);
+    public Vector2 groundCheckSize = new Vector2(0.65f, 0.05f);
     public LayerMask groundLayer;
 
     [Header("Gravity")]
@@ -41,6 +39,13 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         GroundCheck();
+
+        if (_jumpBufferCounter > 0)
+        {
+            _jumpBufferCounter -= Time.deltaTime;
+        }
+
+        ExecuteJump();
     }
 
     public void Gravity()
@@ -64,10 +69,20 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && _jumpsRemaining > 0)
+        if (context.performed)
+        {
+            _jumpBufferCounter = jumpBufferTime;
+        }
+    }
+
+    private void ExecuteJump()
+    {
+        if (_jumpBufferCounter > 0 && _jumpsRemaining > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpPower);
             _jumpsRemaining--;
+
+            _jumpBufferCounter = 0f;
         }
     }
 
@@ -75,12 +90,11 @@ public class PlayerMovement : MonoBehaviour
     {
         bool _grounded = Physics2D.OverlapBox(groundCheckPos.position, groundCheckSize, 0, groundLayer);
 
-        if (_grounded && rb.linearVelocityY <= 0)
+        if (_grounded && rb.linearVelocityY < 0.1f)
         {
             _jumpsRemaining = maxJumps;
         }
     }
-
 
     private void OnDrawGizmosSelected()
     {

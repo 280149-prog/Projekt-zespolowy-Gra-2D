@@ -2,44 +2,26 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public Rigidbody2D rb;
-
     [Header("Health")]
     public int healths = 3;
-    [SerializeField] private LayerMask instantDeathMask;
-
     private bool _isPlaying = true;
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void TakeDamage(int damage = 1)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (!_isPlaying) { return; }
+
+        healths -= damage;
+        Debug.Log("Zycia: " + healths);
+
+        if (healths <= 0)
         {
-            healths--;
-            Debug.Log("Zycia: " + healths);
+            Die();
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void Die()
     {
-        if (IsInLayerMask(other.gameObject.layer, instantDeathMask))
-        {
-            healths = 0;
-            Debug.Log("Instant death hazard!");
-        }
-    }
-
-    void Update()
-    {
-        // Testowo
-        if (healths <= 0 && _isPlaying)
-        {
-            Debug.Log("Koniec gry!");
-            _isPlaying = false;
-        }
-    }
-
-    private bool IsInLayerMask(int layer, LayerMask layerMask)
-    {
-        return (layerMask.value & (1 << layer)) != 0;
+        _isPlaying = false;
+        // Game over screen
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class ChunkManager : MonoBehaviour
 {
@@ -57,6 +58,12 @@ public class ChunkManager : MonoBehaviour
         tilemapDrawer.DrawSpawn(GetBiomeForChunk(0));
         GenerateInitialChunks();
 
+        // Refresh A* Grid dopiero po wyrysowaniu klatki
+        StartCoroutine(DeferredRefresh());
+    }
+    private IEnumerator DeferredRefresh()
+    {
+        yield return new WaitForEndOfFrame();
         RefreshAStarGrid();
     }
 
