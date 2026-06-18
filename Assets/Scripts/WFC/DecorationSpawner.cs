@@ -21,6 +21,7 @@ public class DecorationSpawner : MonoBehaviour
     [Header("Placement rules")]
     [SerializeField] private int minDistanceFromChunkEdge = 2;
     [SerializeField] private int minDistanceFromGap = 2;
+    [SerializeField] private int wideAndLargeSideClearance = 2;
     [SerializeField] private int minDistanceBetweenPrefabDecorations = 5;
     [SerializeField] private bool randomFlipX = true;
 
@@ -178,16 +179,18 @@ public class DecorationSpawner : MonoBehaviour
     {
         int width = GetRequiredWidth(size);
         int groundHeight = columns[localX].groundHeight;
+        int sideClearance = RequiresSideClearance(size) ? wideAndLargeSideClearance : 0;
 
-        for (int i = 0; i < width; i++)
+        int firstRequiredX = localX - sideClearance;
+        int lastRequiredX = localX + width - 1 + sideClearance;
+
+        if (firstRequiredX < 0 || lastRequiredX >= columns.Length)
         {
-            int x = localX + i;
+            return false;
+        }
 
-            if (x >= columns.Length)
-            {
-                return false;
-            }
-
+        for (int x = firstRequiredX; x <= lastRequiredX; x++)
+        {
             if (columns[x].baseType != BaseColumnType.Ground)
             {
                 return false;
@@ -200,6 +203,12 @@ public class DecorationSpawner : MonoBehaviour
         }
 
         return true;
+    }
+
+    private bool RequiresSideClearance(DecorationSize size)
+    {
+        return size == DecorationSize.Wide ||
+               size == DecorationSize.Large;
     }
 
     private int GetRequiredWidth(DecorationSize size)

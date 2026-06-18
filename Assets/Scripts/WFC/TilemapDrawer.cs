@@ -215,8 +215,8 @@ public class TilemapDrawer : MonoBehaviour
             NeighbourType leftNeighbour = GetNeighbourTypeAtHeight(columns, localX - 1, column.groundHeight);
             NeighbourType rightNeighbour = GetNeighbourTypeAtHeight(columns, localX + 1, column.groundHeight);
 
-            bool hasSolidLeft = CountsAsSolidForGroundTop(leftNeighbour, rightNeighbour);
-            bool hasSolidRight = CountsAsSolidForGroundTop(rightNeighbour, leftNeighbour);
+            bool hasSolidLeft = leftNeighbour == NeighbourType.Ground;
+            bool hasSolidRight = rightNeighbour == NeighbourType.Ground;
 
             DrawGroundColumn(worldX, column.groundHeight, hasSolidLeft, hasSolidRight, biome);
         }
@@ -291,6 +291,11 @@ public class TilemapDrawer : MonoBehaviour
 
         if (airOnLeft && airOnRight)
         {
+            if (biome.topSingleTiles != null && biome.topSingleTiles.Length > 0)
+            {
+                return GetRandomTile(biome.topSingleTiles);
+            }
+
             return GetRandomTile(biome.topTiles);
         }
 
@@ -309,13 +314,9 @@ public class TilemapDrawer : MonoBehaviour
 
     private NeighbourType GetNeighbourTypeAtHeight(LevelColumnData[] columns, int x, int y)
     {
-        if (x < 0)
+        if (x < 0 || x >= columns.Length)
         {
-            x = 0;
-        }
-        else if (x >= columns.Length)
-        {
-            x = columns.Length - 1;
+            return NeighbourType.Air;
         }
 
         LevelColumnData column = columns[x];
@@ -333,45 +334,6 @@ public class TilemapDrawer : MonoBehaviour
         }
 
         return NeighbourType.Air;
-    }
-
-    private bool CountsAsSolidForGroundTop(NeighbourType neighbour, NeighbourType oppositeNeighbour)
-    {
-        if (neighbour == NeighbourType.Ground)
-        {
-            return true;
-        }
-
-        if (neighbour == NeighbourType.Air)
-        {
-            return false;
-        }
-
-        if (neighbour == NeighbourType.Liquid)
-        {
-            // Air + Liquid:
-            // liquid traktujemy jak solid, żeby edge był tylko od strony powietrza.
-            if (oppositeNeighbour == NeighbourType.Air)
-            {
-                return true;
-            }
-
-            // Liquid + Ground:
-            // liquid traktujemy jak brak gruntu, żeby ground dostał TL/TR od strony cieczy.
-            if (oppositeNeighbour == NeighbourType.Ground)
-            {
-                return false;
-            }
-
-            // Liquid + Liquid:
-            // traktujemy jak solid.
-            if (oppositeNeighbour == NeighbourType.Liquid)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void DrawWaterColumn(LevelColumnData[] columns, int localX, int worldX, BiomeTileSet biome)
@@ -625,13 +587,9 @@ public class TilemapDrawer : MonoBehaviour
 
     private bool HasSameBaseType(LevelColumnData[] columns, int x, BaseColumnType type)
     {
-        if (x < 0)
+        if (x < 0 || x >= columns.Length)
         {
-            x = 0;
-        }
-        else if (x >= columns.Length)
-        {
-            x = columns.Length - 1;
+            return false;
         }
 
         return columns[x].baseType == type;

@@ -19,12 +19,14 @@ public class HeightLayoutGenerator : MonoBehaviour
 
     private int lastGroundHeight;
     private int lastTrend;
+    private bool lastColumnWasLiquidGap;
     private bool hasHeightState;
 
     public void ResetHeightState()
     {
         lastGroundHeight = startGroundHeight;
         lastTrend = 0;
+        lastColumnWasLiquidGap = false;
         hasHeightState = false;
     }
 
@@ -39,7 +41,7 @@ public class HeightLayoutGenerator : MonoBehaviour
         int currentHeight = hasHeightState ? lastGroundHeight : startGroundHeight;
         int currentTrend = hasHeightState ? lastTrend : 0;
 
-        bool previousWasLiquidGap = false;
+        bool previousWasLiquidGap = hasHeightState && lastColumnWasLiquidGap;
 
         for (int x = 0; x < columns.Length; x++)
         {
@@ -55,6 +57,11 @@ public class HeightLayoutGenerator : MonoBehaviour
                 else
                 {
                     int heightChange = ChooseHeightChange(currentTrend);
+
+                    if (IsImmediateOscillation(heightChange, currentTrend))
+                    {
+                        heightChange = 0;
+                    }
 
                     int newHeight = currentHeight + heightChange;
                     newHeight = Mathf.Clamp(newHeight, minGroundHeight, maxGroundHeight);
@@ -83,6 +90,8 @@ public class HeightLayoutGenerator : MonoBehaviour
 
         lastGroundHeight = currentHeight;
         lastTrend = currentTrend;
+        lastColumnWasLiquidGap = columns.Length > 0 &&
+                                 IsLiquidGap(columns[columns.Length - 1].baseType);
         hasHeightState = true;
 
         Debug.Log("HeightLayoutGenerator: ustawiono wysokości z pamięcią poprzedniego chunka.");
@@ -167,6 +176,19 @@ public class HeightLayoutGenerator : MonoBehaviour
         if (change > 0) return 1;
         if (change < 0) return -1;
         return 0;
+    }
+
+    private bool IsImmediateOscillation(int heightChange, int currentTrend)
+    {
+        return heightChange != 0 &&
+               currentTrend != 0 &&
+               heightChange == -currentTrend;
+    }
+
+    private bool IsLiquidGap(BaseColumnType baseType)
+    {
+        return baseType == BaseColumnType.WaterGap ||
+               baseType == BaseColumnType.LavaGap;
     }
 
     public void ApplySettings(ChunkGenerationSettings settings)
